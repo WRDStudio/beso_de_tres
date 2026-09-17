@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#12130f">
+  <meta name="description" content="Conversor de divisas simultáneo entre Pesos Colombianos, Colones Costarricenses y Dólares USD para Android PWA">
+  
+  <!-- PWA & Android Meta Tags -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="Divisas">
+  
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Google Fonts: Outfit / Inter for sleek modern UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <title>Conversor de Divisas · COP · CRC · USD</title>
+</head>
+<body>
+  <!-- App Shell / Mobile Device Viewport -->
+  <div class="mobile-frame">
+    <main class="app-container">
+      
+      <!-- Top App Bar -->
+      <header class="top-bar">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3v18M7 3v18M3 7h18M3 17h18"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>Divisas</h1>
+            <span class="brand-badge">PWA Android</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-install" class="btn-icon-action hidden" title="Instalar App en Android">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="btn-install-text">Instalar</span>
+          </button>
+          
+          <button id="btn-clear" class="btn-icon-action" title="Limpiar todos los montos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Live Simultaneous Conversion Cards Section -->
+      <section class="converter-section">
+        
+        <!-- CARD 1: COP (Colombian Pesos) -->
+        <div class="currency-card" id="card-cop" data-currency="cop">
+          <div class="card-header">
+            <div class="flag-wrapper">
+              <div class="flag-circle" title="Colombia">
+                <svg viewBox="0 0 32 32" width="28" height="28">
+                  <clipPath id="circle-clip-co"><circle cx="16" cy="16" r="16"/></clipPath>
+                  <g clip-path="url(#circle-clip-co)">
+                    <rect width="32" height="16" fill="#FCD116"/>
+                    <rect y="16" width="32" height="8" fill="#003893"/>
+                    <rect y="24" width="32" height="8" fill="#CE1126"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="currency-meta">
+                <span class="currency-code">COP</span>
+                <span class="currency-country">Colombia · Pesos</span>
+              </div>
+            </div>
+            <button class="btn-copy" data-target="input-cop" title="Copiar valor COP">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-cop" 
+              class="currency-input" 
+              placeholder="0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+
+          <!-- Quick presets for COP -->
+          <div class="quick-chips">
+            <button class="chip" data-action="set" data-currency="cop" data-val="10000">10K</button>
+            <button class="chip" data-action="set" data-currency="cop" data-val="50000">50K</button>
+            <button class="chip" data-action="set" data-currency="cop" data-val="100000">100K</button>
+            <button class="chip" data-action="set" data-currency="cop" data-val="500000">500K</button>
+          </div>
+        </div>
+
+        <!-- Exchange Link Indicator -->
+        <div class="sync-indicator">
+          <div class="sync-line"></div>
+          <div class="sync-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+            <span>Conversión simultánea en tiempo real</span>
+          </div>
+          <div class="sync-line"></div>
+        </div>
+
+        <!-- CARD 2: CRC (Costa Rican Colones) -->
+        <div class="currency-card" id="card-crc" data-currency="crc">
+          <div class="card-header">
+            <div class="flag-wrapper">
+              <div class="flag-circle" title="Costa Rica">
+                <svg viewBox="0 0 32 32" width="28" height="28">
+                  <clipPath id="circle-clip-cr"><circle cx="16" cy="16" r="16"/></clipPath>
+                  <g clip-path="url(#circle-clip-cr)">
+                    <rect width="32" height="5.33" fill="#002B7F"/>
+                    <rect y="5.33" width="32" height="5.33" fill="#FFFFFF"/>
+                    <rect y="10.66" width="32" height="10.68" fill="#CE1126"/>
+                    <rect y="21.34" width="32" height="5.33" fill="#FFFFFF"/>
+                    <rect y="26.67" width="32" height="5.33" fill="#002B7F"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="currency-meta">
+                <span class="currency-code">CRC</span>
+                <span class="currency-country">Costa Rica · Colones</span>
+              </div>
+            </div>
+            <button class="btn-copy" data-target="input-crc" title="Copiar valor CRC">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="input-wrapper">
+            <span class="currency-symbol">₡</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-crc" 
+              class="currency-input" 
+              placeholder="0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+
+          <!-- Quick presets for CRC -->
+          <div class="quick-chips">
+            <button class="chip" data-action="set" data-currency="crc" data-val="1000">1K</button>
+            <button class="chip" data-action="set" data-currency="crc" data-val="5000">5K</button>
+            <button class="chip" data-action="set" data-currency="crc" data-val="10000">10K</button>
+            <button class="chip" data-action="set" data-currency="crc" data-val="50000">50K</button>
+          </div>
+        </div>
+
+        <!-- Exchange Link Indicator -->
+        <div class="sync-indicator">
+          <div class="sync-line"></div>
+          <div class="sync-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+            <span>Relación 3 Divisas</span>
+          </div>
+          <div class="sync-line"></div>
+        </div>
+
+        <!-- CARD 3: USD (US Dollars) -->
+        <div class="currency-card" id="card-usd" data-currency="usd">
+          <div class="card-header">
+            <div class="flag-wrapper">
+              <div class="flag-circle" title="Estados Unidos">
+                <svg viewBox="0 0 32 32" width="28" height="28">
+                  <clipPath id="circle-clip-us"><circle cx="16" cy="16" r="16"/></clipPath>
+                  <g clip-path="url(#circle-clip-us)">
+                    <rect width="32" height="32" fill="#FFFFFF"/>
+                    <path d="M0 0h32v2.46H0zm0 4.92h32v2.46H0zm0 4.92h32v2.46H0zm0 4.93h32v2.46H0zm0 4.92h32v2.46H0zm0 4.92h32v2.46H0zm0 4.93h32v2.46H0z" fill="#B22234"/>
+                    <rect width="14" height="15" fill="#3C3B6E"/>
+                    <circle cx="3.5" cy="3.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="7" cy="3.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="10.5" cy="3.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="5.25" cy="7.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="8.75" cy="7.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="3.5" cy="11.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="7" cy="11.5" r="1" fill="#FFFFFF"/>
+                    <circle cx="10.5" cy="11.5" r="1" fill="#FFFFFF"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="currency-meta">
+                <span class="currency-code">USD</span>
+                <span class="currency-country">Estados Unidos · Dólares</span>
+              </div>
+            </div>
+            <button class="btn-copy" data-target="input-usd" title="Copiar valor USD">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="text" 
+              inputmode="decimal" 
+              id="input-usd" 
+              class="currency-input" 
+              placeholder="0"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+
+          <!-- Quick presets for USD -->
+          <div class="quick-chips">
+            <button class="chip" data-action="set" data-currency="usd" data-val="10">$10</button>
+            <button class="chip" data-action="set" data-currency="usd" data-val="20">$20</button>
+            <button class="chip" data-action="set" data-currency="usd" data-val="50">$50</button>
+            <button class="chip" data-action="set" data-currency="usd" data-val="100">$100</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Derived Cross-Rate Direct Pill -->
+      <section class="cross-rate-pill" id="cross-rate-info">
+        <div class="cross-icon">⇄</div>
+        <div class="cross-text" id="cross-text">
+          1 CRC ≈ <strong>7.11 COP</strong> · 1.000 COP ≈ <strong>140.63 CRC</strong>
+        </div>
+      </section>
+
+      <!-- Exact Screenshot Match: Tasas de cambio manuales -->
+      <section class="manual-rates-panel" id="manual-rates-panel">
+        <h2 class="panel-title">Tasas de cambio manuales</h2>
+
+        <!-- 1 USD en pesos -->
+        <div class="rate-row">
+          <div class="rate-info">
+            <span class="rate-label">1 USD en pesos</span>
+            <span class="rate-sub">Colombia · COP</span>
+          </div>
+          <div class="rate-input-box">
+            <input 
+              type="number" 
+              id="rate-cop" 
+              class="rate-number-input" 
+              value="3200" 
+              step="any"
+              min="1"
+            >
+          </div>
+        </div>
+
+        <!-- 1 USD en colones -->
+        <div class="rate-row">
+          <div class="rate-info">
+            <span class="rate-label">1 USD en colones</span>
+            <span class="rate-sub">Costa Rica · CRC</span>
+          </div>
+          <div class="rate-input-box">
+            <input 
+              type="number" 
+              id="rate-crc" 
+              class="rate-number-input" 
+              value="450" 
+              step="any"
+              min="1"
+            >
+          </div>
+        </div>
+
+        <!-- Footer with help note and Restaurar button -->
+        <div class="panel-footer">
+          <p class="panel-note">
+            Ingresa aquí la tasa del día (banco, casa de cambio) para que la conversión sea exacta.
+          </p>
+          <button id="btn-restore" class="btn-restore">Restaurar</button>
+        </div>
+      </section>
+
+      <!-- PWA Offline Status -->
+      <footer class="app-footer">
+        <div class="offline-badge">
+          <span class="pulse-dot"></span>
+          <span>100% Offline PWA · Diseñado para Android</span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
