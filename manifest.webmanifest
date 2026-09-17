@@ -1,6 +1,6 @@
 {
-  "name": "Divisas - COP · CRC · USD",
-  "short_name": "Divisas",
+  "name": "Beso de 3 - Divisas",
+  "short_name": "Beso de 3",
   "description": "Conversor rápido entre Pesos Colombianos, Colones Costarricenses y Dólares Estadounidenses",
   "start_url": "./index.html",
   "scope": "./",

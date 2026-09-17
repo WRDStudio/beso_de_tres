@@ -1,4 +1,4 @@
-const CACHE_NAME = 'divisas-pwa-v2';
+const CACHE_NAME = 'beso-de-tres-v1';
 const ASSETS = [
   './',
   './index.html',

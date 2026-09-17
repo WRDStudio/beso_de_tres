@@ -126,6 +126,14 @@ html, body {
   justify-content: center;
   color: var(--accent-gold);
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  user-select: none;
+}
+
+.brand-icon .brand-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(-0.5px);
 }
 
 .brand-icon svg {
