@@ -40,6 +40,8 @@ const dom = {
   btnClear: document.getElementById('btn-clear'),
   btnInstall: document.getElementById('btn-install'),
   toast: document.getElementById('toast'),
+  iosInstallModal: document.getElementById('ios-install-modal'),
+  btnCloseIosModal: document.getElementById('btn-close-ios-modal'),
   
   cards: {
     cop: document.getElementById('card-cop'),
@@ -432,33 +434,119 @@ function registerServiceWorker() {
 }
 
 /**
- * PWA: Instalación en Android
+ * Helper: Detectar si la app ya está ejecutándose como PWA instalada
+ */
+function isRunningStandalone() {
+  return window.navigator.standalone === true || 
+         window.matchMedia('(display-mode: standalone)').matches ||
+         window.matchMedia('(display-mode: fullscreen)').matches;
+}
+
+/**
+ * Helper: Detectar dispositivos Apple iOS (iPhone, iPad, iPod)
+ */
+function isIosDevice() {
+  const ua = window.navigator.userAgent.toLowerCase();
+  const isIos = /iphone|ipad|ipod/.test(ua);
+  const isMacTouch = window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1;
+  return isIos || isMacTouch;
+}
+
+/**
+ * Modal de ayuda para instalación en iOS
+ */
+function openIosInstallModal() {
+  if (!dom.iosInstallModal) return;
+  dom.iosInstallModal.classList.remove('hidden');
+  dom.iosInstallModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeIosInstallModal() {
+  if (!dom.iosInstallModal) return;
+  dom.iosInstallModal.classList.add('hidden');
+  dom.iosInstallModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+/**
+ * PWA: Instalación multiplataforma (Android nativo + Guía iOS)
  */
 function setupPwaInstall() {
+  // Si ya está ejecutándose como PWA instalada, ocultar botón de instalación
+  if (isRunningStandalone()) {
+    dom.btnInstall.classList.add('hidden');
+    return;
+  }
+
+  // 1. Android / Chrome / Edge: Evento nativo de instalación
   window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevenir mini-infobar automático en móviles
     e.preventDefault();
     state.deferredPrompt = e;
-    
-    // Mostrar botón de instalar en el header
-    dom.btnInstall.classList.remove('hidden');
-
-    dom.btnInstall.addEventListener('click', async () => {
-      triggerHaptic(25);
-      if (!state.deferredPrompt) return;
-      
-      state.deferredPrompt.prompt();
-      const { outcome } = await state.deferredPrompt.userChoice;
-      console.log(`[PWA] Resultado de instalación: ${outcome}`);
-      
-      state.deferredPrompt = null;
-      dom.btnInstall.classList.add('hidden');
-    });
+    if (!isRunningStandalone()) {
+      dom.btnInstall.classList.remove('hidden');
+    }
   });
 
+  // 2. iOS (iPhone / iPad): Mostrar botón de instalación si no está instalada
+  if (isIosDevice() && !isRunningStandalone()) {
+    dom.btnInstall.classList.remove('hidden');
+  }
+
+  // Manejar clic del botón de instalar
+  dom.btnInstall.addEventListener('click', async () => {
+    triggerHaptic(25);
+    
+    // CASO A: Android o Chrome con prompt nativo listo
+    if (state.deferredPrompt) {
+      state.deferredPrompt.prompt();
+      const { outcome } = await state.deferredPrompt.userChoice;
+      console.log(`[PWA] Resultado de instalación nativa: ${outcome}`);
+      if (outcome === 'accepted') {
+        state.deferredPrompt = null;
+        dom.btnInstall.classList.add('hidden');
+      }
+      return;
+    }
+    
+    // CASO B: iPhone / iPad (abre la hoja interactiva de pasos Safari)
+    if (isIosDevice()) {
+      openIosInstallModal();
+      return;
+    }
+
+    // CASO C: Fallback para otros navegadores de escritorio
+    showToast('Usa el menú de tu navegador para agregar a inicio o instalar');
+  });
+
+  // Configurar eventos para cerrar el modal de iOS
+  if (dom.btnCloseIosModal) {
+    dom.btnCloseIosModal.addEventListener('click', () => {
+      triggerHaptic(15);
+      closeIosInstallModal();
+    });
+  }
+
+  if (dom.iosInstallModal) {
+    dom.iosInstallModal.addEventListener('click', (e) => {
+      if (e.target === dom.iosInstallModal) {
+        closeIosInstallModal();
+      }
+    });
+  }
+
+  // Cerrar modal con tecla Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dom.iosInstallModal && !dom.iosInstallModal.classList.contains('hidden')) {
+      closeIosInstallModal();
+    }
+  });
+
+  // Cuando la app se instala correctamente (Android o desktop)
   window.addEventListener('appinstalled', () => {
     dom.btnInstall.classList.add('hidden');
-    showToast('¡App instalada correctamente en tu dispositivo!');
+    closeIosInstallModal();
+    showToast('¡App instalada correctamente!');
   });
 }
 
