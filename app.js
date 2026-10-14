@@ -478,6 +478,7 @@ const STORAGE_KEYS = {
   RATE_PREFIX: 'divisas_rate_',
   LAST_AMOUNT: 'divisas_last_amount',
   LAST_SLOT: 'divisas_last_active_slot',
+  THEME: 'divisas_theme_mode',
   // Claves legacy para usuarios existentes (retrocompatibilidad)
   LEGACY_RATE_COP: 'divisas_rate_cop_v1',
   LEGACY_RATE_CRC: 'divisas_rate_crc_v1',
@@ -541,6 +542,9 @@ const dom = {
   btnClear: document.getElementById('btn-clear'),
   btnInstall: document.getElementById('btn-install'),
   toast: document.getElementById('toast'),
+  btnThemeToggle: document.getElementById('btn-theme-toggle'),
+  sunIcon: document.querySelector('.sun-icon'),
+  moonIcon: document.querySelector('.moon-icon'),
 
   // Modal selector de divisas
   currencyModal: document.getElementById('currency-modal'),
@@ -559,6 +563,10 @@ const dom = {
 // INICIALIZACIÓN
 // =============================================================================
 function initApp() {
+  // Cargar tema guardado (Modo Oscuro por defecto / Modo Sol Intenso)
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || 'dark';
+  applyTheme(savedTheme);
+
   loadStoredSlots();
   loadStoredRates();
   renderAllSlots();
@@ -821,25 +829,42 @@ function formatNumber(num, currencyKey) {
     decimals = 0;
   }
 
-  // Región de formato según divisa
-  let locale = 'es-CR';
-  if (currencyKey === 'cop') locale = 'es-CO';
-  if (currencyKey === 'mxn') locale = 'es-MX';
-  if (currencyKey === 'usd' || currencyKey === 'cad' || currencyKey === 'aud') locale = 'en-US';
-  if (currencyKey === 'eur') locale = 'es-ES';
-  if (currencyKey === 'gbp') locale = 'en-GB';
+  // Región de formato según divisa:
+  // Para Costa Rica (CRC), Colombia (COP), Europa (EUR) usamos formato con punto para miles (ej: 50.000).
+  // Nota: 'es-CR' en Unicode CLDR introduce espacios ("50 000") que no reflejan el uso bancario costarricense (50.000)
+  let locale = 'es-CO';
+  if (currencyKey === 'usd' || currencyKey === 'cad' || currencyKey === 'aud') {
+    locale = 'en-US';
+  } else if (currencyKey === 'gbp') {
+    locale = 'en-GB';
+  } else if (currencyKey === 'mxn') {
+    locale = 'es-MX';
+  }
 
-  return new Intl.NumberFormat(locale, {
+  let formatted = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals
   }).format(num);
+
+  // Asegurar que en formato de punto nunca queden espacios de no separación
+  if (locale === 'es-CO') {
+    formatted = formatted.replace(/[\u00A0\u202F\s]/g, '.');
+  }
+
+  return formatted;
 }
 
 function parseCleanNumber(str) {
-  if (!str) return 0;
-  let cleaned = str.toString().trim();
+  if (str === null || str === undefined) return 0;
+  if (typeof str === 'number') return isNaN(str) ? 0 : str;
 
-  // Si contiene puntos y comas estilo 100.000,50 o 100,000.50
+  let cleaned = str.toString().trim();
+  if (!cleaned) return 0;
+
+  // 1. Eliminar cualquier espacio común, no separable (\u00A0) o fino (\u202F)
+  cleaned = cleaned.replace(/[\s\u00A0\u202F]/g, '');
+
+  // 2. Si contiene puntos y comas estilo 100.000,50 o 100,000.50
   if (cleaned.includes('.') && cleaned.includes(',')) {
     const lastDot = cleaned.lastIndexOf('.');
     const lastComma = cleaned.lastIndexOf(',');
@@ -851,7 +876,7 @@ function parseCleanNumber(str) {
       cleaned = cleaned.replace(/,/g, '');
     }
   } else if (cleaned.includes('.')) {
-    // Si solo tiene puntos (ej: 100.000 como separador de miles)
+    // Si solo tiene puntos (ej: 50.000 o 100.000 como separador de miles)
     const parts = cleaned.split('.');
     if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
       cleaned = cleaned.replace(/\./g, '');
@@ -872,6 +897,178 @@ function parseCleanNumber(str) {
 function formatInputField(inputElem, rawNum, currencyKey) {
   if (!rawNum || isNaN(rawNum) || rawNum <= 0) return;
   inputElem.value = formatNumber(rawNum, currencyKey);
+}
+
+// =============================================================================
+// MINI-CALCULADORA EN INPUTS
+// =============================================================================
+/**
+ * Evalúa expresiones matemáticas de forma segura en los inputs (ej: "50+20", "150*2", "100/3", "50x2")
+ * Soporta operaciones en tiempo real mientras se escribe y evaluación completa al dar Enter/blur.
+ */
+function evaluateMathExpression(rawStr) {
+  if (!rawStr) return { hasMath: false, value: 0 };
+  let str = rawStr.toString().trim();
+
+  // Reemplazar multiplicación 'x' o 'X' por '*'
+  str = str.replace(/[xX]/g, '*');
+
+  // Detectar si contiene operaciones aritméticas (+, -, *, /)
+  const hasMath = /[+\-*/]/.test(str);
+  if (!hasMath) {
+    return { hasMath: false, value: parseCleanNumber(str) };
+  }
+
+  // Normalizar comas a puntos si actúan como separadores decimales
+  let sanitized = str.replace(/,/g, '.');
+
+  // Eliminar espacios entre dígitos (ej: "50 000 + 20 000" -> "50000 + 20000")
+  sanitized = sanitized.replace(/(\d)[\s\u00A0\u202F]+(\d)/g, '$1$2');
+
+  // Eliminar puntos de miles de 3 dígitos (ej: 10.000 + 5.000 -> 10000 + 5000), conservando decimales reales
+  sanitized = sanitized.replace(/(\d+)\.(\d{3})(?!\d)/g, '$1$2');
+
+  // Validación estricta de caracteres numéricos y operadores válidos
+  if (!/^[0-9+\-*/.()\s]+$/.test(sanitized)) {
+    return { hasMath: true, value: parseCleanNumber(rawStr), error: true };
+  }
+
+  // Si el usuario aún está escribiendo (ej: "50+" o "100*"), ignorar operadores finales para preview en vivo
+  const evalStr = sanitized.replace(/[+\-*/.\s]+$/, '');
+  if (!evalStr) {
+    return { hasMath: true, value: 0 };
+  }
+
+  try {
+    const fn = new Function(`"use strict"; return (${evalStr});`);
+    const res = fn();
+    if (typeof res === 'number' && !isNaN(res) && isFinite(res)) {
+      return { hasMath: true, value: Math.max(0, res), rawExpression: str };
+    }
+  } catch (e) {
+    // Expresión temporalmente incompleta mientras se teclea
+  }
+
+  return { hasMath: true, value: 0, error: true };
+}
+
+// =============================================================================
+// CÁLCULO DE PROPINA / IVA (+10%, +15%, +18%)
+// =============================================================================
+function applyTipToSlot(slotIndex, pct) {
+  triggerHaptic(20);
+  const curKey = state.slots[slotIndex];
+  const cur = CURRENCIES[curKey];
+  const input = dom.inputs[slotIndex];
+
+  const math = evaluateMathExpression(input.value);
+  let baseVal = math.value;
+
+  if (baseVal <= 0) {
+    const activeVal = evaluateMathExpression(dom.inputs[state.activeSlotIndex].value).value;
+    if (activeVal > 0) {
+      baseVal = parseCleanNumber(input.value);
+    }
+  }
+
+  if (baseVal <= 0) {
+    showToast('Ingresa un monto primero para calcular propina');
+    input.focus();
+    return;
+  }
+
+  const added = baseVal * (pct / 100);
+  const total = baseVal + added;
+
+  state.activeSlotIndex = slotIndex;
+  highlightActiveCard(slotIndex);
+
+  input.value = formatNumber(total, curKey);
+  calculateConversions(slotIndex, total);
+
+  showToast(`+${pct}% aplicado: ${cur.symbol}${formatNumber(total, curKey)} ${cur.code}`);
+}
+
+// =============================================================================
+// COPIAR LOS 3 MONTOS SIMULTÁNEAMENTE
+// =============================================================================
+function copyAllThreeAmounts() {
+  triggerHaptic(25);
+  const parts = [];
+  for (let i = 0; i < 3; i++) {
+    const curKey = state.slots[i];
+    const cur = CURRENCIES[curKey] || { symbol: '', code: curKey.toUpperCase() };
+    const input = dom.inputs[i];
+    const val = (input && input.value && input.value.trim()) ? input.value.trim() : '0';
+    parts.push(`${cur.symbol}${val} ${cur.code}`);
+  }
+
+  const textToCopy = parts.join('  ≈  ');
+
+  const onCopied = () => {
+    showToast(`Copiados los 3 montos al portapapeles`);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textToCopy).then(onCopied).catch(() => {
+      fallbackCopyText(textToCopy, onCopied);
+    });
+  } else {
+    fallbackCopyText(textToCopy, onCopied);
+  }
+}
+
+function fallbackCopyText(text, callback) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    if (callback) callback();
+  } catch (e) {
+    showToast('No se pudo copiar automáticamente');
+  }
+  document.body.removeChild(ta);
+}
+
+// =============================================================================
+// MODO SOL INTENSO (ALTO CONTRASTE)
+// =============================================================================
+function applyTheme(theme) {
+  const isSun = (theme === 'sun');
+  if (isSun) {
+    document.body.classList.add('sun-mode');
+    if (dom.sunIcon) dom.sunIcon.classList.add('hidden');
+    if (dom.moonIcon) dom.moonIcon.classList.remove('hidden');
+    if (dom.btnThemeToggle) {
+      dom.btnThemeToggle.setAttribute('title', 'Modo Noche / Estándar');
+      dom.btnThemeToggle.setAttribute('aria-label', 'Cambiar a modo noche');
+    }
+  } else {
+    document.body.classList.remove('sun-mode');
+    if (dom.sunIcon) dom.sunIcon.classList.remove('hidden');
+    if (dom.moonIcon) dom.moonIcon.classList.add('hidden');
+    if (dom.btnThemeToggle) {
+      dom.btnThemeToggle.setAttribute('title', 'Modo Sol Intenso (Alto Contraste)');
+      dom.btnThemeToggle.setAttribute('aria-label', 'Cambiar a modo sol');
+    }
+  }
+  try {
+    localStorage.setItem(STORAGE_KEYS.THEME, isSun ? 'sun' : 'dark');
+  } catch (e) {
+    console.warn('Error al guardar tema:', e);
+  }
+}
+
+function toggleTheme() {
+  triggerHaptic(20);
+  const isCurrentlySun = document.body.classList.contains('sun-mode');
+  const newTheme = isCurrentlySun ? 'dark' : 'sun';
+  applyTheme(newTheme);
+  showToast(newTheme === 'sun' ? 'Modo Sol Intenso activado' : 'Modo Noche activado');
 }
 
 // =============================================================================
@@ -1135,18 +1332,23 @@ function triggerHaptic(duration = 15) {
 
 let toastTimeout = null;
 function showToast(message) {
+  if (!dom.toast) {
+    dom.toast = document.getElementById('toast');
+  }
+  if (!dom.toast) return;
+
   dom.toast.textContent = message;
   dom.toast.classList.add('show');
   triggerHaptic(20);
 
   if (toastTimeout) clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
-    dom.toast.classList.remove('show');
+    if (dom.toast) dom.toast.classList.remove('show');
   }, 2600);
 }
 
 function setupEventListeners() {
-  // Configurar los 3 inputs de slots
+  // Configurar los 3 inputs de slots (con soporte de Mini-Calculadora)
   for (let slotIndex = 0; slotIndex < 3; slotIndex++) {
     const input = dom.inputs[slotIndex];
 
@@ -1154,28 +1356,43 @@ function setupEventListeners() {
       state.activeSlotIndex = slotIndex;
       highlightActiveCard(slotIndex);
 
-      const rawVal = parseCleanNumber(e.target.value);
-      calculateConversions(slotIndex, rawVal);
+      const math = evaluateMathExpression(e.target.value);
+      calculateConversions(slotIndex, math.value);
     });
 
     input.addEventListener('focus', (e) => {
       state.activeSlotIndex = slotIndex;
       highlightActiveCard(slotIndex);
+      // El valor del input nunca se altera automáticamente al enfocar
+    });
 
-      const curKey = state.slots[slotIndex];
-      const raw = parseCleanNumber(e.target.value);
-      if (raw > 0) {
-        // En USD y monedas con centavos preservar 2 decimales si no son enteros
-        const hasDecimals = (CURRENCIES[curKey]?.decimals > 0 && raw % 1 !== 0);
-        e.target.value = hasDecimals ? raw.toFixed(2) : Math.round(raw).toString();
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const math = evaluateMathExpression(e.target.value);
+        if (math.value > 0) {
+          const curKey = state.slots[slotIndex];
+          const cur = CURRENCIES[curKey];
+          e.target.value = formatNumber(math.value, curKey);
+          calculateConversions(slotIndex, math.value);
+          if (math.hasMath && !math.error) {
+            showToast(`Calculado: ${cur.symbol}${formatNumber(math.value, curKey)} ${cur.code}`);
+            triggerHaptic(20);
+          }
+        }
+        e.target.blur();
       }
     });
 
     input.addEventListener('blur', (e) => {
       const curKey = state.slots[slotIndex];
-      const raw = parseCleanNumber(e.target.value);
-      if (raw > 0) {
-        formatInputField(e.target, raw, curKey);
+      const math = evaluateMathExpression(e.target.value);
+      if (math.value > 0) {
+        formatInputField(e.target, math.value, curKey);
+        calculateConversions(slotIndex, math.value);
+        if (math.hasMath && !math.error) {
+          showToast(`Calculado: ${CURRENCIES[curKey].symbol}${formatNumber(math.value, curKey)} ${CURRENCIES[curKey].code}`);
+        }
       }
     });
   }
@@ -1188,26 +1405,24 @@ function setupEventListeners() {
     });
   });
 
-  // Botones para Copiar resultado
+  // Botones de Copiar los 3 montos visibles en pantalla
   document.querySelectorAll('.btn-copy').forEach(btn => {
+    btn.addEventListener('click', copyAllThreeAmounts);
+  });
+
+  // Botones de Propina / IVA (+10%, +15%, +18%) en cada tarjeta
+  document.querySelectorAll('.tip-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const slotIndex = parseInt(btn.getAttribute('data-slot'), 10);
-      const input = dom.inputs[slotIndex];
-      if (!input || !input.value) return;
-
-      const curKey = state.slots[slotIndex];
-      const cur = CURRENCIES[curKey];
-      const valToCopy = input.value.trim();
-
-      navigator.clipboard.writeText(valToCopy).then(() => {
-        showToast(`Copiado: ${valToCopy} ${cur.code}`);
-      }).catch(() => {
-        input.select();
-        document.execCommand('copy');
-        showToast(`Copiado: ${valToCopy} ${cur.code}`);
-      });
+      const pct = parseFloat(btn.getAttribute('data-pct'));
+      applyTipToSlot(slotIndex, pct);
     });
   });
+
+  // Alternador de Modo Sol Intenso / Modo Oscuro
+  if (dom.btnThemeToggle) {
+    dom.btnThemeToggle.addEventListener('click', toggleTheme);
+  }
 
   // Botón Limpiar montos
   dom.btnClear.addEventListener('click', () => {
