@@ -61,29 +61,27 @@
         </div>
       </header>
 
-      <!-- Live Simultaneous Conversion Cards Section -->
-      <section class="converter-section">
+      <!-- Live Simultaneous Conversion Cards Section (3 Configurable Slots) -->
+      <section class="converter-section" id="converter-section">
         
-        <!-- CARD 1: COP (Colombian Pesos) -->
-        <div class="currency-card" id="card-cop" data-currency="cop">
+        <!-- SLOT 0: Default CRC (Costa Rica) -->
+        <div class="currency-card" id="card-slot-0" data-slot="0">
           <div class="card-header">
-            <div class="flag-wrapper">
-              <div class="flag-circle" title="Colombia">
-                <svg viewBox="0 0 32 32" width="28" height="28">
-                  <clipPath id="circle-clip-co"><circle cx="16" cy="16" r="16"/></clipPath>
-                  <g clip-path="url(#circle-clip-co)">
-                    <rect width="32" height="16" fill="#FCD116"/>
-                    <rect y="16" width="32" height="8" fill="#003893"/>
-                    <rect y="24" width="32" height="8" fill="#CE1126"/>
-                  </g>
-                </svg>
+            <button type="button" class="currency-selector-btn" data-slot="0" title="Cambiar divisa (Tarjeta 1)" aria-label="Cambiar divisa Tarjeta 1">
+              <div class="flag-circle" id="flag-slot-0">
+                <!-- Injected by app.js -->
               </div>
               <div class="currency-meta">
-                <span class="currency-code">COP</span>
-                <span class="currency-country">Colombia · Pesos</span>
+                <div class="code-row">
+                  <span class="currency-code" id="code-slot-0">CRC</span>
+                  <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <span class="currency-country" id="country-slot-0">Costa Rica · Colones</span>
               </div>
-            </div>
-            <button class="btn-copy" data-target="input-cop" title="Copiar valor COP">
+            </button>
+            <button class="btn-copy" data-slot="0" title="Copiar valor">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -92,11 +90,11 @@
           </div>
 
           <div class="input-wrapper">
-            <span class="currency-symbol">$</span>
+            <span class="currency-symbol" id="symbol-slot-0">₡</span>
             <input 
               type="text" 
               inputmode="decimal" 
-              id="input-cop" 
+              id="input-slot-0" 
               class="currency-input" 
               placeholder="0"
               autocomplete="off"
@@ -104,16 +102,12 @@
             >
           </div>
 
-          <!-- Quick presets for COP -->
-          <div class="quick-chips">
-            <button class="chip" data-action="set" data-currency="cop" data-val="10000">10K</button>
-            <button class="chip" data-action="set" data-currency="cop" data-val="50000">50K</button>
-            <button class="chip" data-action="set" data-currency="cop" data-val="100000">100K</button>
-            <button class="chip" data-action="set" data-currency="cop" data-val="500000">500K</button>
+          <div class="quick-chips" id="chips-slot-0">
+            <!-- Injected by app.js -->
           </div>
         </div>
 
-        <!-- Exchange Link Indicator -->
+        <!-- Exchange Link Indicator 1 -->
         <div class="sync-indicator">
           <div class="sync-line"></div>
           <div class="sync-badge">
@@ -125,28 +119,24 @@
           <div class="sync-line"></div>
         </div>
 
-        <!-- CARD 2: CRC (Costa Rican Colones) -->
-        <div class="currency-card" id="card-crc" data-currency="crc">
+        <!-- SLOT 1: Default USD (Estados Unidos) -->
+        <div class="currency-card" id="card-slot-1" data-slot="1">
           <div class="card-header">
-            <div class="flag-wrapper">
-              <div class="flag-circle" title="Costa Rica">
-                <svg viewBox="0 0 32 32" width="28" height="28">
-                  <clipPath id="circle-clip-cr"><circle cx="16" cy="16" r="16"/></clipPath>
-                  <g clip-path="url(#circle-clip-cr)">
-                    <rect width="32" height="5.33" fill="#002B7F"/>
-                    <rect y="5.33" width="32" height="5.33" fill="#FFFFFF"/>
-                    <rect y="10.66" width="32" height="10.68" fill="#CE1126"/>
-                    <rect y="21.34" width="32" height="5.33" fill="#FFFFFF"/>
-                    <rect y="26.67" width="32" height="5.33" fill="#002B7F"/>
-                  </g>
-                </svg>
+            <button type="button" class="currency-selector-btn" data-slot="1" title="Cambiar divisa (Tarjeta 2)" aria-label="Cambiar divisa Tarjeta 2">
+              <div class="flag-circle" id="flag-slot-1">
+                <!-- Injected by app.js -->
               </div>
               <div class="currency-meta">
-                <span class="currency-code">CRC</span>
-                <span class="currency-country">Costa Rica · Colones</span>
+                <div class="code-row">
+                  <span class="currency-code" id="code-slot-1">USD</span>
+                  <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <span class="currency-country" id="country-slot-1">Estados Unidos · Dólares</span>
               </div>
-            </div>
-            <button class="btn-copy" data-target="input-crc" title="Copiar valor CRC">
+            </button>
+            <button class="btn-copy" data-slot="1" title="Copiar valor">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -155,11 +145,11 @@
           </div>
 
           <div class="input-wrapper">
-            <span class="currency-symbol">₡</span>
+            <span class="currency-symbol" id="symbol-slot-1">$</span>
             <input 
               type="text" 
               inputmode="decimal" 
-              id="input-crc" 
+              id="input-slot-1" 
               class="currency-input" 
               placeholder="0"
               autocomplete="off"
@@ -167,16 +157,12 @@
             >
           </div>
 
-          <!-- Quick presets for CRC -->
-          <div class="quick-chips">
-            <button class="chip" data-action="set" data-currency="crc" data-val="1000">1K</button>
-            <button class="chip" data-action="set" data-currency="crc" data-val="5000">5K</button>
-            <button class="chip" data-action="set" data-currency="crc" data-val="10000">10K</button>
-            <button class="chip" data-action="set" data-currency="crc" data-val="50000">50K</button>
+          <div class="quick-chips" id="chips-slot-1">
+            <!-- Injected by app.js -->
           </div>
         </div>
 
-        <!-- Exchange Link Indicator -->
+        <!-- Exchange Link Indicator 2 -->
         <div class="sync-indicator">
           <div class="sync-line"></div>
           <div class="sync-badge">
@@ -188,34 +174,24 @@
           <div class="sync-line"></div>
         </div>
 
-        <!-- CARD 3: USD (US Dollars) -->
-        <div class="currency-card" id="card-usd" data-currency="usd">
+        <!-- SLOT 2: Default COP (Colombia) -->
+        <div class="currency-card" id="card-slot-2" data-slot="2">
           <div class="card-header">
-            <div class="flag-wrapper">
-              <div class="flag-circle" title="Estados Unidos">
-                <svg viewBox="0 0 32 32" width="28" height="28">
-                  <clipPath id="circle-clip-us"><circle cx="16" cy="16" r="16"/></clipPath>
-                  <g clip-path="url(#circle-clip-us)">
-                    <rect width="32" height="32" fill="#FFFFFF"/>
-                    <path d="M0 0h32v2.46H0zm0 4.92h32v2.46H0zm0 4.92h32v2.46H0zm0 4.93h32v2.46H0zm0 4.92h32v2.46H0zm0 4.92h32v2.46H0zm0 4.93h32v2.46H0z" fill="#B22234"/>
-                    <rect width="14" height="15" fill="#3C3B6E"/>
-                    <circle cx="3.5" cy="3.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="7" cy="3.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="10.5" cy="3.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="5.25" cy="7.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="8.75" cy="7.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="3.5" cy="11.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="7" cy="11.5" r="1" fill="#FFFFFF"/>
-                    <circle cx="10.5" cy="11.5" r="1" fill="#FFFFFF"/>
-                  </g>
-                </svg>
+            <button type="button" class="currency-selector-btn" data-slot="2" title="Cambiar divisa (Tarjeta 3)" aria-label="Cambiar divisa Tarjeta 3">
+              <div class="flag-circle" id="flag-slot-2">
+                <!-- Injected by app.js -->
               </div>
               <div class="currency-meta">
-                <span class="currency-code">USD</span>
-                <span class="currency-country">Estados Unidos · Dólares</span>
+                <div class="code-row">
+                  <span class="currency-code" id="code-slot-2">COP</span>
+                  <svg class="chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <span class="currency-country" id="country-slot-2">Colombia · Pesos</span>
               </div>
-            </div>
-            <button class="btn-copy" data-target="input-usd" title="Copiar valor USD">
+            </button>
+            <button class="btn-copy" data-slot="2" title="Copiar valor">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -224,11 +200,11 @@
           </div>
 
           <div class="input-wrapper">
-            <span class="currency-symbol">$</span>
+            <span class="currency-symbol" id="symbol-slot-2">$</span>
             <input 
               type="text" 
               inputmode="decimal" 
-              id="input-usd" 
+              id="input-slot-2" 
               class="currency-input" 
               placeholder="0"
               autocomplete="off"
@@ -236,12 +212,8 @@
             >
           </div>
 
-          <!-- Quick presets for USD -->
-          <div class="quick-chips">
-            <button class="chip" data-action="set" data-currency="usd" data-val="10">$10</button>
-            <button class="chip" data-action="set" data-currency="usd" data-val="20">$20</button>
-            <button class="chip" data-action="set" data-currency="usd" data-val="50">$50</button>
-            <button class="chip" data-action="set" data-currency="usd" data-val="100">$100</button>
+          <div class="quick-chips" id="chips-slot-2">
+            <!-- Injected by app.js -->
           </div>
         </div>
 
@@ -251,48 +223,16 @@
       <section class="cross-rate-pill" id="cross-rate-info">
         <div class="cross-icon">⇄</div>
         <div class="cross-text" id="cross-text">
-          1 CRC ≈ <strong>7.11 COP</strong> · 1.000 COP ≈ <strong>140.63 CRC</strong>
+          <!-- Injected by app.js -->
         </div>
       </section>
 
-      <!-- Exact Screenshot Match: Tasas de cambio manuales -->
+      <!-- Exact Screenshot Match: Tasas de cambio manuales (Dinamizadas para las 3 divisas activas) -->
       <section class="manual-rates-panel" id="manual-rates-panel">
         <h2 class="panel-title">Tasas de cambio manuales</h2>
 
-        <!-- 1 USD en pesos -->
-        <div class="rate-row">
-          <div class="rate-info">
-            <span class="rate-label">1 USD en pesos</span>
-            <span class="rate-sub">Colombia · COP</span>
-          </div>
-          <div class="rate-input-box">
-            <input 
-              type="number" 
-              id="rate-cop" 
-              class="rate-number-input" 
-              value="3200" 
-              step="any"
-              min="1"
-            >
-          </div>
-        </div>
-
-        <!-- 1 USD en colones -->
-        <div class="rate-row">
-          <div class="rate-info">
-            <span class="rate-label">1 USD en colones</span>
-            <span class="rate-sub">Costa Rica · CRC</span>
-          </div>
-          <div class="rate-input-box">
-            <input 
-              type="number" 
-              id="rate-crc" 
-              class="rate-number-input" 
-              value="450" 
-              step="any"
-              min="1"
-            >
-          </div>
+        <div id="manual-rates-container" class="manual-rates-container">
+          <!-- Dynamically generated rate rows based on active currencies -->
         </div>
 
         <!-- Footer with help note and Restaurar button -->
@@ -308,11 +248,51 @@
       <footer class="app-footer">
         <div class="offline-badge">
           <span class="pulse-dot"></span>
-          <span>100% Offline PWA · iOS & Android</span>
+          <span>100% Offline PWA · 18 Divisas</span>
         </div>
       </footer>
 
     </main>
+  </div>
+
+  <!-- Currency Selector Bottom Sheet Modal -->
+  <div id="currency-modal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal-card currency-sheet" role="dialog" aria-modal="true" aria-labelledby="currency-modal-title">
+      <div class="modal-drag-handle"></div>
+      
+      <div class="sheet-header">
+        <div class="sheet-title-wrap">
+          <h3 id="currency-modal-title">Seleccionar divisa</h3>
+          <p id="currency-modal-subtitle" class="sheet-subtitle">Cambiando Tarjeta 1</p>
+        </div>
+        <button id="btn-close-currency-modal" class="btn-sheet-close" aria-label="Cerrar selector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sheet-search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input 
+          type="search" 
+          id="currency-search-input" 
+          class="currency-search-input" 
+          placeholder="Buscar país, código o moneda..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="btn-clear-search" class="btn-clear-search hidden" title="Borrar búsqueda">✕</button>
+      </div>
+
+      <div id="currency-list" class="currency-list" role="listbox">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification Container -->

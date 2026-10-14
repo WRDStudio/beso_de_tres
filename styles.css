@@ -238,10 +238,30 @@ html, body {
   margin-bottom: 8px;
 }
 
-.flag-wrapper {
+.currency-selector-btn {
   display: flex;
   align-items: center;
   gap: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 5px 8px;
+  margin: -5px -8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: inherit;
+  font-family: inherit;
+}
+
+.currency-selector-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.currency-selector-btn:active {
+  background: var(--accent-gold-subtle);
+  transform: scale(0.98);
 }
 
 .flag-circle {
@@ -268,12 +288,31 @@ html, body {
   flex-direction: column;
 }
 
+.code-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .currency-code {
   font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: 0.5px;
   line-height: 1.1;
+}
+
+.chevron-down {
+  width: 13px;
+  height: 13px;
+  color: var(--accent-gold);
+  opacity: 0.8;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.currency-selector-btn:hover .chevron-down {
+  opacity: 1;
+  transform: translateY(1px);
 }
 
 .currency-country {
@@ -462,6 +501,12 @@ html, body {
   color: #929588; /* Matches screenshot header tone */
   letter-spacing: -0.2px;
   margin-bottom: 2px;
+}
+
+.manual-rates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .rate-row {
@@ -799,3 +844,254 @@ html, body {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
+
+/* ==========================================================================
+   Currency Selector Bottom Sheet
+   ========================================================================== */
+.currency-sheet {
+  background: linear-gradient(180deg, #1f2119 0%, #13140f 100%);
+  border: 1px solid #36392c;
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.12);
+  width: 100%;
+  max-width: 440px;
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px calc(var(--safe-bottom) + 20px);
+  animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sheet-title-wrap h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sheet-subtitle {
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin: 2px 0 0;
+  letter-spacing: 0.3px;
+}
+
+.btn-sheet-close {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sheet-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-sheet-close:hover, .btn-sheet-close:active {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* Search input in sheet */
+.sheet-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sheet-search-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.currency-search-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 36px 10px 38px;
+  color: #ffffff;
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.currency-search-input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 10px;
+  background: #252820;
+  border: none;
+  color: var(--text-muted);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-clear-search.hidden {
+  display: none !important;
+}
+
+/* Currency List & Items */
+.currency-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.currency-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.currency-item:hover, .currency-item:active {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+  transform: translateX(2px);
+}
+
+.currency-item.is-selected {
+  border-color: var(--accent-gold);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-card) 100%);
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-flag {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+}
+
+.item-flag svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.item-code-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.item-code {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.item-symbol {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.item-country {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slot-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.slot-badge.in-use {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.slot-badge.current-slot {
+  background: var(--accent-gold);
+  color: #12130f;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.slot-badge.swap-hint {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-gold-light);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.currency-empty-search {
+  padding: 24px 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
