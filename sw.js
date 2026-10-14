@@ -1,10 +1,12 @@
-const CACHE_NAME = 'beso-de-tres-v7';
+const CACHE_NAME = 'beso-de-tres-v8';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './manifest.webmanifest',
+  './favicon.ico',
+  './apple-touch-icon.png',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
